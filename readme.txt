@@ -4,7 +4,7 @@ Tags: quotes, greeting, students, shortcode, divi
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,6 @@ It displays:
 
 1. Hi [first name]. Nice to see you back on The Blue Tree.
 2. Here's a thought for you: followed by a quote and its author.
-3. What shall we learn about today?
 
 A new quote is selected on every successful WordPress login. The selection is
 stored for that login, so ordinary page refreshes do not change it. Each user has
@@ -45,13 +44,12 @@ The default shortcode is:
 
 Optional text can be changed in the shortcode:
 
-[tbt_quote_greeting encouragement="Let's work on your English today, shall we?"]
+[tbt_quote_greeting welcome="It's good to have you here."]
 
 All supported attributes:
 
 * welcome
 * intro
-* encouragement
 * show_author (yes or no)
 
 == Styling ==
@@ -62,12 +60,20 @@ padding, columns or positioning to the surrounding Divi header.
 The main CSS hook is .tbt-quotes. Colours can be adjusted with:
 
 .tbt-quotes {
-  --tbt-quotes-color: #ffffff;
-  --tbt-quotes-muted-color: rgba(255, 255, 255, 0.82);
-  --tbt-quotes-accent-color: #ffffff;
+  --tbtq-on-hero: #ffffff;
+  --tbtq-on-hero-muted: rgba(255, 255, 255, 0.78);
+  --tbtq-voice-size: 28px;
+  --tbtq-voice-weight: 400;
+  --tbtq-label-size: 14px;
 }
 
 == Changelog ==
+
+= 1.0.1 =
+* Typography aligned with the TBT Style Book: two tiers, Roboto Slab for the
+  welcome and the quote, Roboto for the lead-in and the author.
+* Removed the closing question, which duplicated the prompt below the panel.
+* Webfonts are now loaded by the plugin instead of assumed.
 
 = 1.0.0 =
 * Initial release with personal greeting, 265 quotes and per-user rotation.

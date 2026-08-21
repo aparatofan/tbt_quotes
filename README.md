@@ -25,7 +25,6 @@ logo. Logged-out visitors receive no output.
     [tbt_quote_greeting
       welcome="Nice to see you back on The Blue Tree."
       intro="Here's a thought for you:"
-      encouragement="Let's work on your English today, shall we?"
       show_author="yes"]
 
 ## Installation
