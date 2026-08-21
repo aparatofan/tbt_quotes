@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       The Blue Tree Quotes
  * Description:       Shows each logged-in student a personal welcome and a rotating inspiring quote.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            The Blue Tree
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class TBT_Quotes_Plugin {
-	private const VERSION = '1.0.1';
+	private const VERSION = '1.0.2';
 	private const SHORTCODE = 'tbt_quote_greeting';
 	private const HISTORY_LIMIT = 100;
 	private const CURRENT_QUOTE_META = '_tbt_quotes_current_quote_id';

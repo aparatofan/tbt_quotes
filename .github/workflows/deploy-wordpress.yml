@@ -109,6 +109,61 @@ jobs:
             **/.DS_Store
             **/Thumbs.db
 
+      # A green upload only proves that bytes reached whatever directory
+      # FTP_SERVER_DIR names. It does not prove that directory is the plugin
+      # folder WordPress actually loads: FTP-Deploy-Action creates any path it
+      # is given, so a typo, a wrong site root or a second plugin copy under a
+      # different folder name all still report success. Read the stylesheet back
+      # off the live site and compare it with what we just built, so that a
+      # green run means the live site really changed.
+      - name: Verify the live site is serving the new files
+        if: ${{ inputs.dry_run != true }}
+        shell: bash
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          if [ -z "${SITE_URL}" ]; then
+            echo "::warning::SITE_URL is not set, so this run cannot confirm the upload reached the live site. Add it under Settings > Secrets and variables > Actions > Variables (for example https://thebluetree.pl)."
+            exit 0
+          fi
+
+          version="$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*\([0-9][^[:space:]]*\).*/\1/p' tbt-quotes.php | head -1)"
+          base="${SITE_URL%/}/wp-content/plugins/tbt-quotes"
+
+          # Requested with the same ?ver= the plugin enqueues, so this tests the
+          # exact URL a browser asks for, caches included.
+          css_url="${base}/assets/css/tbt-quotes.css?ver=${version}"
+          echo "Fetching ${css_url}"
+
+          if ! curl -fsSL --max-time 30 -o "${RUNNER_TEMP}/live.css" "${css_url}"; then
+            echo "::error::Could not fetch the stylesheet from ${css_url}. The upload succeeded, so FTP_SERVER_DIR is very likely pointing somewhere other than wp-content/plugins/tbt-quotes on this site."
+            exit 1
+          fi
+
+          local_hash="$(sha256sum build/tbt-quotes/assets/css/tbt-quotes.css | cut -d' ' -f1)"
+          live_hash="$(sha256sum "${RUNNER_TEMP}/live.css" | cut -d' ' -f1)"
+
+          if [ "${local_hash}" != "${live_hash}" ]; then
+            echo "::error::The upload reported success but ${css_url} is still serving different content. Either FTP_SERVER_DIR points at a folder WordPress does not load, or a cache (host page cache, CDN, or Divi's static CSS) is holding the old file."
+            echo "built : ${local_hash}"
+            echo "live  : ${live_hash}"
+            exit 1
+          fi
+
+          echo "Live stylesheet matches the build (${local_hash})."
+
+          # Secondary signal for the PHP side. Some hosts block direct .txt
+          # reads under wp-content, so this only warns.
+          if readme="$(curl -fsSL --max-time 30 "${base}/readme.txt" 2>/dev/null)"; then
+            if printf '%s' "${readme}" | grep -q "^Stable tag: ${version}$"; then
+              echo "Live readme.txt reports ${version}."
+            else
+              echo "::warning::The live readme.txt does not report ${version}. If the Plugins screen still shows an older version, check for a second copy of the plugin in wp-content/plugins under a different folder name."
+            fi
+          else
+            echo "Could not read the live readme.txt; skipping that check."
+          fi
+
       - name: Summarise
         if: success()
         shell: bash

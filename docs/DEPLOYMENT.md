@@ -43,6 +43,19 @@ work. If the secret is empty the workflow stops before connecting.
 
 The connection uses FTPS, so credentials are not sent in the clear.
 
+## Required variable
+
+Set this under **Settings > Secrets and variables > Actions**, on the
+**Variables** tab (not Secrets - it is a public URL, and keeping it unmasked
+makes the deploy log readable):
+
+| Variable | Meaning |
+| --- | --- |
+| `SITE_URL` | Public root URL of the site, e.g. `https://thebluetree.pl`. |
+
+Without it the deploy still runs, but the verification step below is skipped and
+the run only warns.
+
 ## What actually gets uploaded
 
 `bin/build-plugin.sh` stages the plugin into `build/tbt-quotes/` and only the
@@ -75,6 +88,50 @@ no rollback, so the workflow verifies the code first and stops on any failure:
 Point 4 matters because the version is used as the CSS cache-buster. If the
 three disagree the build stops rather than shipping a stylesheet that returning
 visitors keep loading from cache.
+
+## Confirming the deploy actually landed
+
+A green FTP upload is weaker evidence than it looks. `FTP-Deploy-Action` creates
+whatever path `FTP_SERVER_DIR` names, uploads into it and reports success. It
+has no idea whether that directory is the plugin folder WordPress loads. A typo,
+the wrong site root, or a second copy of the plugin under a different folder
+name all produce a green run and an unchanged site.
+
+So after uploading, the workflow fetches
+
+    <SITE_URL>/wp-content/plugins/tbt-quotes/assets/css/tbt-quotes.css?ver=<version>
+
+and compares it byte for byte with the stylesheet it just built. The `?ver=` is
+the same one the plugin enqueues, so this tests the exact URL a browser asks
+for. The job fails if the file cannot be fetched, or if the live copy differs.
+
+It also reads `readme.txt` back and checks the stable tag. Some hosts block
+direct `.txt` reads under `wp-content`, so that one only warns.
+
+## When the deploy is green but the site does not change
+
+Work through these in order:
+
+1. **Is there a second plugin folder?** Open **Plugins** and look for two
+   entries called *The Blue Tree Quotes*, or browse `wp-content/plugins/` over
+   FTP. If the plugin was first installed by hand the folder may be called
+   something other than `tbt-quotes`, in which case the deploy has been writing
+   to a new, inactive folder all along. Fix `FTP_SERVER_DIR` to match the folder
+   that is actually active, or rename the folder to `tbt-quotes` and reactivate.
+2. **Is `FTP_SERVER_DIR` the right path?** It must point at the plugin folder
+   itself and be correct relative to the FTP account's own home directory, which
+   is often already the site root. If the FTP user lands in `/public_html`, then
+   `/public_html/wp-content/plugins/tbt-quotes/` resolves to
+   `/public_html/public_html/wp-content/plugins/tbt-quotes/`. Run the workflow
+   by hand with the dry-run box ticked and read the paths in the log.
+3. **Is a cache serving the old files?** The version number is the CSS
+   cache-buster, so a version bump handles browser caching. It does not clear a
+   host page cache, a CDN, or Divi's combined static CSS. In Divi, clear it
+   under **Divi > Theme Options > Builder > Advanced > Static CSS File
+   Generation**.
+4. **Is PHP opcache holding the old code?** Rare, and only on hosts with
+   `opcache.validate_timestamps=0`. Deactivating and reactivating the plugin
+   forces a reload.
 
 ## Doing a dry run first
 
