@@ -10,6 +10,14 @@
  * font-family carries !important because Divi's global typography rules
  * otherwise override the plugin on the front end.
  *
+ * SPECIFICITY — read before editing the rhythm block at the bottom.
+ * The margin reset is `.tbt-quotes p` (0,1,1), deliberately, so that it
+ * outranks Divi's own `.et_pb_text p` paragraph margins. Anything that puts
+ * spacing back therefore has to outrank the reset in turn, which is why every
+ * rhythm selector repeats the `.tbt-quotes` scope. A bare `.tbt-quotes__welcome`
+ * is only (0,1,0): the reset wins, the margin is silently dropped and the panel
+ * collapses into one solid block of text. Do not "simplify" those selectors.
+ *
  * The panel background, padding and logo belong to the Divi row, not here.
  */
 
@@ -19,7 +27,13 @@
 
 	--tbtq-voice-size: 28px;
 	--tbtq-voice-weight: 400;
+	--tbtq-voice-leading: 1.4;
 	--tbtq-label-size: 14px;
+	--tbtq-label-leading: 1.5;
+
+	--tbtq-gap-welcome: 32px;
+	--tbtq-gap-intro: 8px;
+	--tbtq-gap-quote: 12px;
 
 	--tbtq-font-voice: var(--tbt-font-content, "Roboto Slab", Georgia, serif);
 	--tbtq-font-label: var(--tbt-font-ui, "Roboto", Arial, sans-serif);
@@ -28,9 +42,17 @@
 	max-width: 760px;
 }
 
+/* Divi gives every paragraph a bottom margin and every blockquote a border and
+   padding. Clear them here; the rhythm block reinstates what we actually want. */
+
 .tbt-quotes p,
 .tbt-quotes blockquote {
 	margin: 0;
+}
+
+.tbt-quotes .tbt-quotes__quote {
+	border: 0;
+	padding: 0;
 }
 
 /* ---------------------------------------------------------------- *
@@ -43,24 +65,11 @@
 	font-family: var(--tbtq-font-voice) !important;
 	font-size: var(--tbtq-voice-size);
 	font-weight: var(--tbtq-voice-weight);
-	line-height: 1.3;
-}
-
-.tbt-quotes__welcome {
-	margin-bottom: 32px;
+	line-height: var(--tbtq-voice-leading);
 }
 
 .tbt-quotes__hello {
 	font-weight: 700;
-}
-
-.tbt-quotes__quote {
-	border: 0;
-	padding: 0;
-}
-
-.tbt-quotes__quote p {
-	margin-bottom: 12px;
 }
 
 .tbt-quotes__quote p::before {
@@ -83,9 +92,29 @@
 	font-size: var(--tbtq-label-size);
 	font-style: normal;
 	font-weight: 400;
-	line-height: 1.45;
+	line-height: var(--tbtq-label-leading);
 }
 
-.tbt-quotes__intro {
-	margin-bottom: 8px;
+/* ---------------------------------------------------------------- *
+ * Vertical rhythm
+ *
+ * Every selector here carries the extra `.tbt-quotes` scope so it outranks the
+ * (0,1,1) margin reset above. See the SPECIFICITY note in the file header.
+ * ---------------------------------------------------------------- */
+
+.tbt-quotes .tbt-quotes__welcome {
+	margin-bottom: var(--tbtq-gap-welcome);
+}
+
+.tbt-quotes .tbt-quotes__intro {
+	margin-bottom: var(--tbtq-gap-intro);
+}
+
+.tbt-quotes .tbt-quotes__quote p {
+	margin-bottom: var(--tbtq-gap-quote);
+}
+
+/* No author means no attribution element, so drop the trailing gap. */
+.tbt-quotes .tbt-quotes__quote p:last-child {
+	margin-bottom: 0;
 }

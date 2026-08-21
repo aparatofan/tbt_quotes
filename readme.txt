@@ -4,7 +4,7 @@ Tags: quotes, greeting, students, shortcode, divi
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,17 +57,35 @@ All supported attributes:
 The plugin styles only the markup it outputs. It does not add a background,
 padding, columns or positioning to the surrounding Divi header.
 
-The main CSS hook is .tbt-quotes. Colours can be adjusted with:
+The main CSS hook is .tbt-quotes. Colours, type and the spacing between the
+lines can all be adjusted with:
 
 .tbt-quotes {
   --tbtq-on-hero: #ffffff;
   --tbtq-on-hero-muted: rgba(255, 255, 255, 0.78);
   --tbtq-voice-size: 28px;
   --tbtq-voice-weight: 400;
+  --tbtq-voice-leading: 1.4;
   --tbtq-label-size: 14px;
+  --tbtq-label-leading: 1.5;
+  --tbtq-gap-welcome: 32px;
+  --tbtq-gap-intro: 8px;
+  --tbtq-gap-quote: 12px;
 }
 
+--tbtq-voice-leading and --tbtq-label-leading set the space between wrapped
+lines within a paragraph. The three --tbtq-gap-* properties set the space
+between the blocks: below the welcome line, below the lead-in, and between the
+quote and its author.
+
 == Changelog ==
+
+= 1.0.2 =
+* Fixed the vertical spacing in the greeting panel. The margin reset outranked
+  the rules that set the gaps, so the welcome line, the lead-in and the quote
+  rendered with no space between them.
+* Slightly looser line spacing within the welcome line and the quote.
+* Spacing is now adjustable through --tbtq-gap-* and --tbtq-*-leading.
 
 = 1.0.1 =
 * Typography aligned with the TBT Style Book: two tiers, Roboto Slab for the
