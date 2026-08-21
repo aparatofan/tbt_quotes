@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       The Blue Tree Quotes
  * Description:       Shows each logged-in student a personal welcome and a rotating inspiring quote.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            The Blue Tree
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class TBT_Quotes_Plugin {
-	private const VERSION = '1.0.0';
+	private const VERSION = '1.0.1';
 	private const SHORTCODE = 'tbt_quote_greeting';
 	private const HISTORY_LIMIT = 100;
 	private const CURRENT_QUOTE_META = '_tbt_quotes_current_quote_id';
@@ -40,9 +40,16 @@ final class TBT_Quotes_Plugin {
 	 */
 	public function register_assets() {
 		wp_register_style(
+			'tbt-quotes-fonts',
+			'https://fonts.googleapis.com/css2?family=Roboto:wght@400&family=Roboto+Slab:wght@400;700&display=swap',
+			array(),
+			null
+		);
+
+		wp_register_style(
 			'tbt-quotes',
 			plugins_url( 'assets/css/tbt-quotes.css', __FILE__ ),
-			array(),
+			array( 'tbt-quotes-fonts' ),
 			self::VERSION
 		);
 	}
@@ -66,7 +73,6 @@ final class TBT_Quotes_Plugin {
 	 * Available attributes:
 	 * - welcome: sentence after "Hi [name]."
 	 * - intro: sentence before the quote.
-	 * - encouragement: final prompt.
 	 * - show_author: "yes" or "no".
 	 *
 	 * @param array<string, mixed> $attributes Shortcode attributes.
@@ -93,10 +99,9 @@ final class TBT_Quotes_Plugin {
 
 		$attributes = shortcode_atts(
 			array(
-				'welcome'       => __( 'Nice to see you back on The Blue Tree.', 'tbt-quotes' ),
-				'intro'         => __( "Here's a thought for you:", 'tbt-quotes' ),
-				'encouragement' => __( 'What shall we learn about today?', 'tbt-quotes' ),
-				'show_author'   => 'yes',
+				'welcome'     => __( 'Nice to see you back on The Blue Tree.', 'tbt-quotes' ),
+				'intro'       => __( "Here's a thought for you:", 'tbt-quotes' ),
+				'show_author' => 'yes',
 			),
 			$attributes,
 			self::SHORTCODE
@@ -116,7 +121,7 @@ final class TBT_Quotes_Plugin {
 
 		ob_start();
 		?>
-		<div class="tbt-quotes" aria-label="<?php esc_attr_e( 'Personal welcome', 'tbt-quotes' ); ?>">
+		<div class="tbt-quotes">
 			<p class="tbt-quotes__welcome">
 				<span class="tbt-quotes__hello"><?php echo esc_html( sprintf( __( 'Hi %s.', 'tbt-quotes' ), $first_name ) ); ?></span>
 				<span class="tbt-quotes__welcome-back"><?php echo esc_html( (string) $attributes['welcome'] ); ?></span>
@@ -131,8 +136,6 @@ final class TBT_Quotes_Plugin {
 					<?php endif; ?>
 				</blockquote>
 			</div>
-
-			<p class="tbt-quotes__encouragement"><?php echo esc_html( (string) $attributes['encouragement'] ); ?></p>
 		</div>
 		<?php
 
