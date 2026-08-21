@@ -1,0 +1,122 @@
+name: Deploy plugin to WordPress
+
+# Runs when plugin code lands on main - that is, straight after a branch is
+# merged - and can also be started by hand from the Actions tab.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tbt-quotes.php'
+      - 'uninstall.php'
+      - 'readme.txt'
+      - 'assets/**'
+      - 'data/**'
+      - 'bin/build-plugin.sh'
+      - '.github/workflows/deploy-wordpress.yml'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Connect and list the changes without uploading anything'
+        type: boolean
+        default: false
+
+# One deploy at a time. Two overlapping FTP syncs would fight over the
+# .ftp-deploy-sync-state.json file the action keeps on the server.
+concurrency:
+  group: deploy-wordpress
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and upload
+    runs-on: ubuntu-latest
+
+    # Records each upload under the repository's Deployments tab. Add a required
+    # reviewer to this environment later if you want deploys to pause for
+    # approval; with no protection rules configured it does not hold anything up.
+    environment: production
+
+    steps:
+      - name: Check out the merged code
+        uses: actions/checkout@v4
+
+      # Everything below the upload step is here so a broken build cannot reach
+      # the live site. A PHP parse error in wp-content/plugins takes the site
+      # down, and FTP has no rollback.
+      - name: Lint the PHP files
+        shell: bash
+        run: |
+          if ! command -v php >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq php-cli
+          fi
+          php --version | head -1
+          find . -name '*.php' -not -path './build/*' -print0 | xargs -0 -r -n1 php -l
+
+      - name: Run the rotation tests
+        shell: bash
+        run: |
+          shopt -s nullglob
+          tests=(tests/*.test.mjs)
+          if [ ${#tests[@]} -eq 0 ]; then
+            echo "No tests found, skipping."
+            exit 0
+          fi
+          for test in "${tests[@]}"; do
+            echo "--- ${test}"
+            node "${test}"
+          done
+
+      # Produces build/tbt-quotes/ from an allowlist of runtime files, so tests,
+      # CI config and developer notes cannot reach wp-content/plugins. Also fails
+      # on a version mismatch between the plugin header and readme.txt.
+      - name: Package the plugin
+        run: bin/build-plugin.sh
+
+      - name: Resolve the target directory
+        id: target
+        env:
+          SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+        run: |
+          if [ -z "${SERVER_DIR}" ]; then
+            echo "::error::FTP_SERVER_DIR is empty. Set it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          # FTP-Deploy-Action rejects a server-dir that has no trailing slash.
+          case "${SERVER_DIR}" in
+            */) dir="${SERVER_DIR}" ;;
+            *)  dir="${SERVER_DIR}/" ;;
+          esac
+          echo "dir=${dir}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to the server
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./build/tbt-quotes/
+          server-dir: ${{ steps.target.outputs.dir }}
+          dry-run: ${{ inputs.dry_run == true }}
+          timeout: 120000
+          log-level: standard
+          exclude: |
+            **/.DS_Store
+            **/Thumbs.db
+
+      - name: Summarise
+        if: success()
+        shell: bash
+        run: |
+          {
+            echo "### Deployed The Blue Tree Quotes"
+            echo ""
+            echo "- Version: \`$(sed -n 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*\([0-9][^[:space:]]*\).*/\1/p' tbt-quotes.php | head -1)\`"
+            echo "- Commit: \`${GITHUB_SHA:0:7}\`"
+            echo "- Dry run: \`${{ inputs.dry_run == true }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
