@@ -35,10 +35,21 @@ logo. Logged-out visitors receive no output.
 3. Activate The Blue Tree Quotes.
 4. Add the shortcode to the appropriate Divi module.
 
-For a directly installable ZIP, place the runtime files in a folder named
-tbt-quotes and package that folder:
+For a directly installable ZIP, run the build script:
 
-    mkdir -p build/tbt-quotes
-    cp -R tbt-quotes.php assets data readme.txt uninstall.php build/tbt-quotes/
-    cd build
-    zip -r tbt-quotes.zip tbt-quotes
+    bin/build-plugin.sh
+
+It writes build/tbt-quotes.zip, ready for Upload Plugin, alongside
+build/tbt-quotes/ containing the same files unpacked. The script checks that the
+plugin header, the VERSION constant and the readme.txt stable tag all agree
+before packaging anything.
+
+## Deployment
+
+Merging a branch into main deploys the plugin to the live site automatically,
+over FTPS, using the workflow in .github/workflows/deploy-wordpress.yml. The
+code is linted and tested before anything is uploaded, and only the runtime
+files are sent.
+
+See docs/DEPLOYMENT.md for the required secrets, how to do a dry run first, and
+what to check if a deploy fails.
