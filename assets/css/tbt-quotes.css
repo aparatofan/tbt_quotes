@@ -2,18 +2,32 @@
  * The Blue Tree Quotes — VIP greeting block.
  *
  * TBT Style Book v1.0: §2 neutrals, §3 typography, §4 spacing scale.
+ * Controls follow Style Book v2.1 §7 (see the hover note below).
  *
  * The block sits on the white VIP page, not on a coloured panel. It is
  * editorial, not a card: no background, no border box, no shadow. A single
  * blue left rule marks the thought as a pull quote (§5 — borders stay quiet
  * until they carry meaning).
  *
- * Two tiers:
- *   VOICE  — Roboto Slab, ink. The welcome line (26px) and the quote (20px).
+ * Three tiers:
+ *   VOICE  — Roboto Slab, ink. The welcome line (26px), the quote and the
+ *            stranger message (20px).
  *   LABEL  — Roboto, 14px, muted. The lead-in and the author.
+ *   ACTION — Roboto 700, 16px. The buttons under the block.
  *
  * The welcome line is larger than the quote on purpose. The quote sits
  * directly above the LATEST LESSONS heading and must not compete with it.
+ *
+ * TWO STATES, ONE STYLESHEET. The signed-out block (.tbt-quotes--stranger)
+ * reuses __welcome, __hello, __thought and __intro, so it inherits the type
+ * tiers and the blue rule without a second set of rules. Only __message is its
+ * own: it shares the voice tier with __quote p because it speaks in the same
+ * voice, but it is not a quotation, so the ::before / ::after quotation marks
+ * stay scoped to __quote p alone. That is why the two selectors travel together
+ * everywhere except there.
+ *
+ * The action row sits outside __thought, so the buttons line up with the left
+ * edge of the welcome line rather than hiding behind the blue rule.
  *
  * Colours fall back to literal Style Book §2 values because the Hub token
  * starter does not yet define --tbt-ink or --tbt-muted. When it does, these
@@ -38,6 +52,14 @@
 	--tbtq-muted: var(--tbt-muted, #667085);
 	--tbtq-rule: var(--tbt-blue, #0856c9);
 
+	--tbtq-blue: var(--tbt-blue, #0856c9);
+	--tbtq-blue-hover: var(--tbt-blue-hover, #4b84ce);
+	--tbtq-surface: var(--tbt-surface, #ffffff);
+	--tbtq-border: var(--tbt-border, #d8e3f0);
+	--tbtq-selected-bg: var(--tbt-selected-bg, #edf4ff);
+	--tbtq-focus-ring: var(--tbt-focus-ring, 0 0 0 3px rgba(8, 86, 201, .18));
+	--tbtq-radius-control: var(--tbt-radius-control, 12px);
+
 	--tbtq-welcome-size: 26px;
 	--tbtq-quote-size: 20px;
 	--tbtq-voice-weight: 400;
@@ -51,6 +73,8 @@
 	--tbtq-gap-welcome: 32px;
 	--tbtq-gap-intro: 8px;
 	--tbtq-gap-quote: 12px;
+	--tbtq-gap-actions: 24px;
+	--tbtq-gap-button: 12px;
 
 	--tbtq-font-voice: var(--tbt-font-content, "Roboto Slab", Georgia, serif);
 	--tbtq-font-label: var(--tbt-font-ui, "Roboto", Arial, sans-serif);
@@ -91,7 +115,8 @@
  * ---------------------------------------------------------------- */
 
 .tbt-quotes__welcome,
-.tbt-quotes__quote p {
+.tbt-quotes__quote p,
+.tbt-quotes__message {
 	color: var(--tbtq-ink);
 	font-family: var(--tbtq-font-voice) !important;
 	font-weight: var(--tbtq-voice-weight);
@@ -102,13 +127,16 @@
 	font-size: var(--tbtq-welcome-size);
 }
 
-.tbt-quotes__quote p {
+.tbt-quotes__quote p,
+.tbt-quotes__message {
 	font-size: var(--tbtq-quote-size);
 }
 
 .tbt-quotes__hello {
 	font-weight: 700;
 }
+
+/* Quotation marks belong to an actual quotation, so they stay off __message. */
 
 .tbt-quotes__quote p::before {
 	content: "\201C";
@@ -131,6 +159,75 @@
 	font-style: normal;
 	font-weight: 400;
 	line-height: var(--tbtq-label-leading);
+}
+
+/* ---------------------------------------------------------------- *
+ * Tier 3 — action
+ *
+ * Style Book §7: 12px radius, ~44px control height, Roboto 700, sentence case,
+ * a subtle lift on hover, a blue focus ring, and one primary action per view —
+ * which is why render_actions() promotes only the first button in a row.
+ *
+ * The hover blue is the v2.1 primary hover (#4b84ce): primary lightens on
+ * hover, it does not darken.
+ *
+ * WHY !important ON color AND text-decoration. Divi sets link colour and the
+ * hover underline through customizer output whose selector can carry an ID
+ * (#page-container … a). No class-only selector can outrank an ID, so these two
+ * properties need the same escape hatch that font-family already uses above,
+ * for the same reason. Nothing else here takes !important.
+ * ---------------------------------------------------------------- */
+
+.tbt-quotes .tbt-quotes__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tbtq-gap-button);
+	margin-top: var(--tbtq-gap-actions);
+}
+
+.tbt-quotes .tbt-quotes__button {
+	align-items: center;
+	border: 1px solid transparent;
+	border-radius: var(--tbtq-radius-control);
+	display: inline-flex;
+	font-family: var(--tbtq-font-label) !important;
+	font-size: 16px;
+	font-weight: 700;
+	justify-content: center;
+	line-height: 1;
+	min-height: 44px;
+	padding: 0 24px;
+	text-decoration: none !important;
+	transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.tbt-quotes .tbt-quotes__button--primary {
+	background-color: var(--tbtq-blue);
+	color: #fff !important;
+}
+
+.tbt-quotes .tbt-quotes__button--primary:hover,
+.tbt-quotes .tbt-quotes__button--primary:focus {
+	background-color: var(--tbtq-blue-hover);
+	transform: translateY(-1px);
+}
+
+.tbt-quotes .tbt-quotes__button--secondary {
+	background-color: var(--tbtq-surface);
+	border-color: var(--tbtq-border);
+	color: var(--tbtq-blue) !important;
+}
+
+.tbt-quotes .tbt-quotes__button--secondary:hover,
+.tbt-quotes .tbt-quotes__button--secondary:focus {
+	background-color: var(--tbtq-selected-bg);
+	border-color: var(--tbtq-blue);
+	transform: translateY(-1px);
+}
+
+.tbt-quotes .tbt-quotes__button:focus-visible {
+	box-shadow: var(--tbtq-focus-ring);
+	outline: none;
 }
 
 /* ---------------------------------------------------------------- *
