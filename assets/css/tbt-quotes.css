@@ -1,11 +1,23 @@
 /**
- * The Blue Tree Quotes — VIP greeting panel.
+ * The Blue Tree Quotes — VIP greeting block.
  *
- * TBT Style Book v1.0: §3 typography, §4 spacing scale.
+ * TBT Style Book v1.0: §2 neutrals, §3 typography, §4 spacing scale.
+ *
+ * The block sits on the white VIP page, not on a coloured panel. It is
+ * editorial, not a card: no background, no border box, no shadow. A single
+ * blue left rule marks the thought as a pull quote (§5 — borders stay quiet
+ * until they carry meaning).
  *
  * Two tiers:
- *   VOICE  — Roboto Slab, 28px, full white. The welcome line and the quote.
- *   LABEL  — Roboto, 14px, dimmed. The lead-in and the author.
+ *   VOICE  — Roboto Slab, ink. The welcome line (26px) and the quote (20px).
+ *   LABEL  — Roboto, 14px, muted. The lead-in and the author.
+ *
+ * The welcome line is larger than the quote on purpose. The quote sits
+ * directly above the LATEST LESSONS heading and must not compete with it.
+ *
+ * Colours fall back to literal Style Book §2 values because the Hub token
+ * starter does not yet define --tbt-ink or --tbt-muted. When it does, these
+ * resolve upward with no edit here.
  *
  * font-family carries !important because Divi's global typography rules
  * otherwise override the plugin on the front end.
@@ -15,21 +27,26 @@
  * outranks Divi's own `.et_pb_text p` paragraph margins. Anything that puts
  * spacing back therefore has to outrank the reset in turn, which is why every
  * rhythm selector repeats the `.tbt-quotes` scope. A bare `.tbt-quotes__welcome`
- * is only (0,1,0): the reset wins, the margin is silently dropped and the panel
- * collapses into one solid block of text. Do not "simplify" those selectors.
+ * is only (0,1,0): the reset wins, the margin is silently dropped and the block
+ * collapses into one solid run of text. Do not "simplify" those selectors.
  *
- * The panel background, padding and logo belong to the Divi row, not here.
+ * The page background, row padding and logo belong to the Divi row, not here.
  */
 
 .tbt-quotes {
-	--tbtq-on-hero: #ffffff;
-	--tbtq-on-hero-muted: rgba(255, 255, 255, 0.78);
+	--tbtq-ink: var(--tbt-ink, #1f2937);
+	--tbtq-muted: var(--tbt-muted, #667085);
+	--tbtq-rule: var(--tbt-blue, #0856c9);
 
-	--tbtq-voice-size: 28px;
+	--tbtq-welcome-size: 26px;
+	--tbtq-quote-size: 20px;
 	--tbtq-voice-weight: 400;
 	--tbtq-voice-leading: 1.4;
 	--tbtq-label-size: 14px;
 	--tbtq-label-leading: 1.5;
+
+	--tbtq-rule-width: 3px;
+	--tbtq-rule-gap: 24px;
 
 	--tbtq-gap-welcome: 32px;
 	--tbtq-gap-intro: 8px;
@@ -38,7 +55,7 @@
 	--tbtq-font-voice: var(--tbt-font-content, "Roboto Slab", Georgia, serif);
 	--tbtq-font-label: var(--tbt-font-ui, "Roboto", Arial, sans-serif);
 
-	color: var(--tbtq-on-hero);
+	color: var(--tbtq-ink);
 	max-width: 760px;
 }
 
@@ -56,16 +73,37 @@
 }
 
 /* ---------------------------------------------------------------- *
+ * The rule
+ *
+ * Single-sided border, so no radius (Style Book §5). It spans the lead-in
+ * and the quote together: the lead-in is part of the thought, not a heading
+ * standing outside it.
+ * ---------------------------------------------------------------- */
+
+.tbt-quotes .tbt-quotes__thought {
+	border-left: var(--tbtq-rule-width) solid var(--tbtq-rule);
+	border-radius: 0;
+	padding-left: var(--tbtq-rule-gap);
+}
+
+/* ---------------------------------------------------------------- *
  * Tier 1 — voice
  * ---------------------------------------------------------------- */
 
 .tbt-quotes__welcome,
 .tbt-quotes__quote p {
-	color: var(--tbtq-on-hero);
+	color: var(--tbtq-ink);
 	font-family: var(--tbtq-font-voice) !important;
-	font-size: var(--tbtq-voice-size);
 	font-weight: var(--tbtq-voice-weight);
 	line-height: var(--tbtq-voice-leading);
+}
+
+.tbt-quotes__welcome {
+	font-size: var(--tbtq-welcome-size);
+}
+
+.tbt-quotes__quote p {
+	font-size: var(--tbtq-quote-size);
 }
 
 .tbt-quotes__hello {
@@ -86,7 +124,7 @@
 
 .tbt-quotes__intro,
 .tbt-quotes__quote cite {
-	color: var(--tbtq-on-hero-muted);
+	color: var(--tbtq-muted);
 	display: block;
 	font-family: var(--tbtq-font-label) !important;
 	font-size: var(--tbtq-label-size);
