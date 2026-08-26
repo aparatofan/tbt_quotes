@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       The Blue Tree Quotes
  * Description:       Shows a personal welcome with a rotating quote to signed-in users, and a sign-in prompt to everyone else.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            The Blue Tree
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class TBT_Quotes_Plugin {
-	private const VERSION = '1.1.0';
+	private const VERSION = '1.1.1';
 	private const SHORTCODE = 'tbt_quote_greeting';
 	private const HISTORY_LIMIT = 100;
 	private const CURRENT_QUOTE_META = '_tbt_quotes_current_quote_id';
@@ -120,7 +120,7 @@ final class TBT_Quotes_Plugin {
 				'welcome'          => __( 'Nice to see you back on The Blue Tree.', 'tbt-quotes' ),
 				'intro'            => __( "Here's a thought for you:", 'tbt-quotes' ),
 				'show_author'      => 'yes',
-				'notes_url'        => '/lesson-notes/',
+				'notes_url'        => 'https://thebluetree.pl/tbt-notes/',
 				'notes_label'      => __( 'Lesson notes', 'tbt-quotes' ),
 				'dashboard_url'    => '/dashboard/',
 				'dashboard_label'  => __( 'My dashboard', 'tbt-quotes' ),

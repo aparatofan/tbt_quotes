@@ -4,7 +4,7 @@ Tags: quotes, greeting, students, shortcode, divi
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -69,7 +69,7 @@ Signed-in text:
 
 Signed-in buttons:
 
-* notes_url - default /lesson-notes/
+* notes_url - default https://thebluetree.pl/tbt-notes/
 * notes_label - default Lesson notes
 * dashboard_url - default /dashboard/
 * dashboard_label - default My dashboard
@@ -141,6 +141,11 @@ The --tbtq-blue* and --tbtq-surface, --tbtq-border, --tbtq-selected-bg,
 --tbtq-focus-ring and --tbtq-radius-control properties style the buttons.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fixed the Lesson notes button so its default destination is the working
+  https://thebluetree.pl/tbt-notes/ page instead of the missing
+  /lesson-notes/ page.
 
 = 1.1.0 =
 * Signed-in users get an action row under the quote: Lesson notes and My

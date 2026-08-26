@@ -40,7 +40,7 @@ leaves a gap rather than a dead link.
       welcome="Nice to see you back on The Blue Tree."
       intro="Here's a thought for you:"
       show_author="yes"
-      notes_url="/lesson-notes/"
+      notes_url="https://thebluetree.pl/tbt-notes/"
       notes_label="Lesson notes"
       dashboard_url="/dashboard/"
       dashboard_label="My dashboard"
