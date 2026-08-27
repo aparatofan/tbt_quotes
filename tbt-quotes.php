@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       The Blue Tree Quotes
  * Description:       Shows a personal welcome with a rotating quote to signed-in users, and a sign-in prompt to everyone else.
- * Version:           1.1.1
+ * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            The Blue Tree
@@ -14,8 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class TBT_Quotes_Plugin {
-	private const VERSION = '1.1.1';
+	private const VERSION = '1.2.0';
 	private const SHORTCODE = 'tbt_quote_greeting';
+	private const TREE_SHORTCODE = 'tbt_tree_logo';
 	private const HISTORY_LIMIT = 100;
 	private const CURRENT_QUOTE_META = '_tbt_quotes_current_quote_id';
 	private const RECENT_QUOTES_META = '_tbt_quotes_recent_quote_ids';
@@ -31,6 +32,7 @@ final class TBT_Quotes_Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'wp_login', array( $this, 'select_quote_on_login' ), 10, 2 );
 		add_shortcode( self::SHORTCODE, array( $this, 'render_shortcode' ) );
+		add_shortcode( self::TREE_SHORTCODE, array( $this, 'render_tree_shortcode' ) );
 	}
 
 	/**
@@ -44,7 +46,7 @@ final class TBT_Quotes_Plugin {
 	public function register_assets() {
 		wp_register_style(
 			'tbt-quotes-fonts',
-			'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@400;700&display=swap',
+			'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@300;400;700&display=swap',
 			array(),
 			null
 		);
@@ -54,6 +56,14 @@ final class TBT_Quotes_Plugin {
 			plugins_url( 'assets/css/tbt-quotes.css', __FILE__ ),
 			array( 'tbt-quotes-fonts' ),
 			self::VERSION
+		);
+
+		wp_register_script(
+			'tbt-quotes-tree',
+			plugins_url( 'assets/js/tbt-tree.js', __FILE__ ),
+			array(),
+			self::VERSION,
+			true
 		);
 	}
 
@@ -189,6 +199,73 @@ final class TBT_Quotes_Plugin {
 				)
 			);
 			?>
+		</div>
+		<?php
+
+		return trim( (string) ob_get_clean() );
+	}
+
+
+	/**
+	 * Renders the animated tree logo for the left Divi column.
+	 *
+	 * The SVG is bundled and trusted plugin content. It is inserted inline so
+	 * the stylesheet can animate its individual trunk and leaf paths.
+	 *
+	 * Available attributes:
+	 * - tagline: text shown after the leaves finish growing.
+	 *
+	 * @param array<string, mixed> $attributes Shortcode attributes.
+	 * @return string
+	 */
+	public function render_tree_shortcode( $attributes = array() ) {
+		$attributes = shortcode_atts(
+			array(
+				'tagline' => __( 'The Place where people grow.', 'tbt-quotes' ),
+			),
+			$attributes,
+			self::TREE_SHORTCODE
+		);
+
+		$svg_path = plugin_dir_path( __FILE__ ) . 'assets/images/tbt-tree-logo.svg';
+		$svg = is_readable( $svg_path ) ? file_get_contents( $svg_path ) : false;
+
+		if ( ! is_string( $svg ) || '' === trim( $svg ) ) {
+			return '';
+		}
+
+		$svg = preg_replace( '/^(?:\xEF\xBB\xBF)?<\?xml[^?]*\?>\s*/', '', $svg, 1 );
+		if ( ! is_string( $svg ) ) {
+			return '';
+		}
+
+		if ( ! wp_script_is( 'tbt-quotes-tree', 'registered' ) ) {
+			$this->register_assets();
+		}
+
+		$this->enqueue_style();
+		wp_enqueue_script( 'tbt-quotes-tree' );
+
+		$tagline = trim( (string) $attributes['tagline'] );
+		$accessible_label = '' !== $tagline
+			? sprintf( __( 'The Blue Tree — %s', 'tbt-quotes' ), $tagline )
+			: __( 'The Blue Tree', 'tbt-quotes' );
+
+		ob_start();
+		?>
+		<div
+			class="tbt-tree-logo is-initial"
+			data-tbt-tree-logo
+			role="img"
+			tabindex="0"
+			aria-label="<?php echo esc_attr( $accessible_label ); ?>"
+		>
+			<div class="tbt-tree-logo__graphic" data-tbt-tree-graphic>
+				<?php echo $svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted bundled SVG. ?>
+			</div>
+			<?php if ( '' !== $tagline ) : ?>
+				<p class="tbt-tree-logo__tagline" aria-hidden="true"><?php echo esc_html( $tagline ); ?></p>
+			<?php endif; ?>
 		</div>
 		<?php
 
