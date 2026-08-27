@@ -38,8 +38,8 @@ final class TBT_Quotes_Plugin {
 	/**
 	 * Registers styling without changing the surrounding Divi row or columns.
 	 *
-	 * Roboto is requested at 400 and 700: the buttons are Roboto 700, and asking
-	 * for the weight is what stops the browser synthesising a fake bold.
+	 * Roboto is requested at 400 and 700 for labels and buttons. Roboto Slab
+	 * includes 300 for the thin tree tagline plus 400 and 700 for greeting text.
 	 *
 	 * @return void
 	 */
