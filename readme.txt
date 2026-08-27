@@ -4,7 +4,7 @@ Tags: quotes, greeting, students, shortcode, divi
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,8 @@ Shows a personal welcome with a rotating quote to signed-in users, and a sign-in
 
 == Description ==
 
-The plugin provides the shortcode [tbt_quote_greeting]. It renders one of two
+The plugin provides [tbt_quote_greeting] for the greeting and [tbt_tree_logo]
+for the animated tree in the left Divi column. The greeting renders one of two
 states, depending on who is looking at the page.
 
 A signed-in visitor sees:
@@ -94,6 +95,18 @@ is empty is not rendered at all, so a mistyped attribute leaves a gap rather tha
 a dead link. The first button in a row is the primary one and the rest are
 secondary.
 
+== Animated tree ==
+
+Add [tbt_tree_logo] to the left Divi column. The tree grows on first load and
+shows “The Place where people grow.” underneath in Roboto Slab 300 after the
+leaves appear. Hovering the tree or focusing it with the keyboard replays the
+sequence. Reduced-motion preferences are respected.
+
+Change or hide the tagline with the tagline attribute:
+
+[tbt_tree_logo tagline="The Place where people grow."]
+[tbt_tree_logo tagline=""]
+
 == Styling ==
 
 The plugin styles only the markup it outputs. It does not add a background,
@@ -141,6 +154,14 @@ The --tbtq-blue* and --tbtq-surface, --tbtq-border, --tbtq-selected-bg,
 --tbtq-focus-ring and --tbtq-radius-control properties style the buttons.
 
 == Changelog ==
+
+= 1.2.0 =
+* Added the [tbt_tree_logo] shortcode for the left Divi column.
+* The tree grows on load and replays when hovered or keyboard-focused.
+* “The Place where people grow.” appears after the leaves in thin Roboto Slab.
+* The tree sits slightly higher to make room for the tagline.
+* Added reduced-motion support.
+
 
 = 1.1.1 =
 * Fixed the Lesson notes button so its default destination is the working

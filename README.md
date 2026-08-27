@@ -9,8 +9,9 @@ header:
 
     [tbt_quote_greeting]
 
-The plugin does not change the surrounding Divi row, columns, background or
-logo.
+The plugin does not change the surrounding Divi row, columns or background.
+Use the separate tree shortcode in the logo column when the animated logo is
+wanted.
 
 The block renders in one of two states:
 
@@ -25,6 +26,23 @@ The block renders in one of two states:
 The first button in a row is the primary one and the rest are secondary. A
 button whose URL or label is empty is not rendered, so a mistyped attribute
 leaves a gap rather than a dead link.
+
+## Animated tree logo
+
+Place this shortcode in the left Divi column:
+
+    [tbt_tree_logo]
+
+The tree grows on first load. After its leaves finish appearing, “The Place
+where people grow.” fades in underneath in Roboto Slab 300. Moving the pointer
+over the tree, or focusing it with the keyboard, restarts the sequence: the
+tagline disappears, the leaves regrow, and the tagline returns. The
+component respects the visitor's reduced-motion setting.
+
+The tagline can be changed or omitted:
+
+    [tbt_tree_logo tagline="The Place where people grow."]
+    [tbt_tree_logo tagline=""]
 
 ## Rotation behaviour
 

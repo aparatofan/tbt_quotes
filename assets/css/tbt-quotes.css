@@ -253,3 +253,127 @@
 .tbt-quotes .tbt-quotes__quote p:last-child {
 	margin-bottom: 0;
 }
+
+
+/* ---------------------------------------------------------------- *
+ * Animated tree logo
+ *
+ * [tbt_tree_logo] is intended for the left Divi column. The graphic is lifted
+ * slightly to make space for the tagline without making the row feel taller.
+ * Initial load grows the trunk and staggered leaves before the tagline. Each
+ * pointer/focus replay leaves the trunk in place and regrows the leaves.
+ * ---------------------------------------------------------------- */
+
+.tbt-tree-logo {
+	--tbt-tree-lift: -18px;
+	--tbt-tree-tagline-color: var(--tbt-blue, #0856c9);
+	--tbt-tree-tagline-delay: 2.45s;
+
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	margin: 0 auto;
+	max-width: 500px;
+	outline: none;
+}
+
+.tbt-tree-logo__graphic {
+	transform: translateY(var(--tbt-tree-lift));
+	width: 100%;
+}
+
+.tbt-tree-logo__graphic svg {
+	cursor: pointer;
+	display: block;
+	height: auto;
+	overflow: visible;
+	width: 100%;
+}
+
+.tbt-tree-logo .tbt-tree-logo__tagline {
+	color: var(--tbt-tree-tagline-color);
+	font-family: var(--tbt-font-content, "Roboto Slab", Georgia, serif) !important;
+	font-size: clamp(18px, 2.2vw, 24px);
+	font-weight: 300;
+	letter-spacing: .01em;
+	line-height: 1.3;
+	margin: -10px 0 0;
+	text-align: center;
+}
+
+.tbt-tree-logo:focus-visible {
+	border-radius: 8px;
+	box-shadow: var(--tbt-focus-ring, 0 0 0 3px rgba(8, 86, 201, .18));
+}
+
+/* Classes 1–4, 8 and 9 draw the trunk and people; 5–7 draw the leaves. */
+.tbt-tree-logo.is-initial :is(.cls-1, .cls-2, .cls-3, .cls-4, .cls-8, .cls-9) {
+	animation: tbt-tree-trunk-grow .55s cubic-bezier(.2, .7, .2, 1) both;
+	transform-box: fill-box;
+	transform-origin: center bottom;
+}
+
+.tbt-tree-logo.is-initial :is(.cls-5, .cls-6, .cls-7),
+.tbt-tree-logo.is-replaying :is(.cls-5, .cls-6, .cls-7) {
+	animation: tbt-tree-leaf-grow .46s cubic-bezier(.2, .75, .25, 1.25) both;
+	animation-delay: calc(.42s + (var(--tbt-leaf-index, 0) * 35ms));
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
+.tbt-tree-logo.is-initial .tbt-tree-logo__tagline,
+.tbt-tree-logo.is-replaying .tbt-tree-logo__tagline {
+	animation: tbt-tree-tagline-reveal .55s ease-out var(--tbt-tree-tagline-delay) both;
+}
+
+@keyframes tbt-tree-trunk-grow {
+	0% {
+		opacity: 0;
+		transform: scaleY(.06);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scaleY(1);
+	}
+}
+
+@keyframes tbt-tree-leaf-grow {
+	0% {
+		opacity: 0;
+		transform: rotate(-5deg) scale(.05);
+	}
+
+	72% {
+		opacity: 1;
+		transform: rotate(1deg) scale(1.08);
+	}
+
+	100% {
+		opacity: 1;
+		transform: rotate(0) scale(1);
+	}
+}
+
+@keyframes tbt-tree-tagline-reveal {
+	0% {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tbt-tree-logo.is-initial *,
+	.tbt-tree-logo.is-replaying * {
+		animation: none !important;
+	}
+
+	.tbt-tree-logo__graphic {
+		transform: none;
+	}
+}
